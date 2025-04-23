@@ -1,6 +1,6 @@
 <template>
-    <v-app-bar color="primary" density="compact">
-      <template v-slot:prepend>
+    <v-app-bar color="primary" density="compact" >
+      <template v-slot:prepend >
         Hola, {{ nombreCliente }}
       </template>
       <v-app-bar-title class="text-center"> SAGISD </v-app-bar-title>

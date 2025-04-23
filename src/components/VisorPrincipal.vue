@@ -1,44 +1,64 @@
-<!-- src/components/MainViewer.vue -->
+<!-- src/components/VisorPrincipal.vue -->
 <template>
-  <div ref="viewer" class="viewer-container"></div>
+  <v-sheet class="pa-2" height="600">
+    <div ref="viewer" class="viewer-container"></div>
+  </v-sheet>
 </template>
 
 <script>
 export default {
   name: 'VisorPrincipal',
-  props: { instanceId: Number },
+  props: {
+    imageId: { type: String, required: true },
+  },
   watch: {
-    instanceId: {
+    imageId: {
       immediate: true,
       handler(id) {
         if (!id) return;
-
-        // 1. Construir la ruta al DICOM
-        const idStr   = id.toString().padStart(7, '0');       // "00001"
-        const fileName = `${idStr}.dcm`;                     // "00001.dcm"
-        const url      = `${import.meta.env.BASE_URL}dicomobj/${fileName}`;  
-        const imageId  = `wadouri:${url}`;                    
-        console.log('Cargando DICOM desde →', imageId);
-
-        // 2. Cargar con Cornerstone
-        const cs  = this.$cornerstone;
+        const cs = this.$cornerstone;
         const cst = this.$cornerstoneTools;
-        const el  = this.$refs.viewer;
+        const el = this.$refs.viewer;
 
+        // // Habilita el elemento
         cs.enable(el);
-        cs.loadImage(imageId)
-          .then(img => {
-            cs.displayImage(el, img);
+        
+        // Registra y activa herramientas básicas
+        cst.addTool(cst.PanTool);
+        cst.addTool(cst.ZoomTool);
+        cst.addTool(cst.WwwcTool);
+        cst.setToolActive('Pan', { mouseButtonMask: 1 }); // botón izquierdo
+        cst.setToolActive('Zoom', { mouseButtonMask: 2 }); // botón derecho
+        cst.setToolActive('Wwwc', { mouseButtonMask: 4 }); // rueda del ratón
 
-            // Asegúrate de haber registrado antes las tools en main.js
-            cst.mouseInput.enable(el);
-            cst.setToolActive('Pan',  { mouseButtonMask: 2 });
-            cst.setToolActive('Zoom', { mouseButtonMask: 4 });
-            cst.setToolActive('Wwwc', { mouseButtonMask: 1 });
-          })
-          .catch(err => console.error('Error loadImage:', err));
-      }
-    }
-  }
+        // Carga y despliega la imagen
+        cs.loadImage(id)
+          .then(image => cs.displayImage(el, image))
+          .catch(err => console.error('Cornerstone loadImage error:', err));
+      },
+    },
+  },
+  watch: {
+    imageId: {
+      immediate: true,
+      handler(id) {
+        if (!id) return;
+        const el = this.$refs.viewer;
+        this.$cornerstone.enable(el);
+        this.$cornerstone
+          .loadImage(id) // id ya tiene ?t=…
+          .then(img => this.$cornerstone.displayImage(el, img))
+          .catch(console.error);
+      },
+    },
+  },
 };
 </script>
+
+<style scoped>
+.viewer-container {
+  width: 100%;
+  height: 100%;
+  background: black;
+}
+</style>

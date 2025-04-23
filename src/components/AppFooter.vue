@@ -1,5 +1,5 @@
 <template>
-  <v-footer color="primary" height="50px"> Fecha de estudio: {{ fechaEstudio }} </v-footer>
+  <v-footer color="color-primary"> Fecha de estudio: {{ fechaEstudio }} </v-footer>
 </template>
 
 <script setup>

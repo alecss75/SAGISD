@@ -1,3 +1,4 @@
+// src/main.js
 import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
@@ -14,7 +15,7 @@ const vuetify = createVuetify({
 });
 
 // Cornerstone config
-import * as cornerstone from 'cornerstone-core';
+import cornerstone from 'cornerstone-core';
 import * as cornerstoneTools from 'cornerstone-tools';
 import * as cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader';
 import dicomParser from 'dicom-parser';
@@ -36,6 +37,12 @@ cornerstoneWADOImageLoader.webWorkerManager.initialize({
 cornerstoneTools.init();
 
 const app = createApp(App);
+
+// Exponer como propiedades globales
+app.config.globalProperties.$cornerstone = cornerstone;
+app.config.globalProperties.$cornerstoneTools = cornerstoneTools;
+app.config.globalProperties.$cornerstoneWADO = cornerstoneWADOImageLoader;
+
 app.use(router);
 app.use(vuetify);
 app.mount('#app');

@@ -1,12 +1,13 @@
 <template>
-  <v-sheet class="pa-2" max-height="600" elevation="1">
-    <v-slide-group v-model="selected" show-arrows class="pa-2" active-class="selected-thumb">
-      <template #default>
-        <v-slide-group-item v-for="id in instanceIds" :key="id" :value="id">
-          <DicomThumbnail :imageId="getImageId(id)" @select="$emit('select', id)" />
-        </v-slide-group-item>
-      </template>
-    </v-slide-group>
+  <v-sheet class="pa-2" elevation="1" style="height: 100%; overflow-y: auto;">
+    <div class="grid-container">
+      <div v-for="item in instanceIds" :key="item" class="thumbnail-wrapper">
+        <DicomThumbnail
+          :imageId="getImageId(item)"
+          @select="$emit('select', item)"
+        />
+      </div>
+    </div>
   </v-sheet>
 </template>
 
@@ -20,22 +21,19 @@ export default {
   props: {
     instanceIds: { type: Array, default: () => [] },
   },
-  data() {
-    return { selected: null };
-  },
   methods: {
     getImageId,
-  },
-  watch: {
-    selected(newId) {
-      this.$emit('select', newId);
-    },
   },
 };
 </script>
 
 <style scoped>
-.selected-thumb .thumb-canvas {
-  outline: 2px solid #1976d2;
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  grid-gap: 8px;
+}
+.thumbnail-wrapper {
+  padding: 4px;
 }
 </style>

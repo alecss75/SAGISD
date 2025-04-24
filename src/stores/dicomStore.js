@@ -35,7 +35,7 @@ export const useDicomStore = defineStore('dicomStorage', {
     async loadDicomsFromAssets() {
       this.isLoading = true;
       try {
-        const modules = import.meta.glob('@/assets/dicoms/DICOMOBJ/*', {
+        const modules = import.meta.glob('@/public/dicoms/DICOMOBJ/*', {
           query: 'url',
           eager: true,
         });

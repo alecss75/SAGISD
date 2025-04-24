@@ -12,7 +12,6 @@ declare module 'vue' {
     AppFooter: typeof import('./src/components/AppFooter.vue')['default']
     DicomThumbnail: typeof import('./src/components/DicomThumbnail.vue')['default']
     GaleriaMiniatura: typeof import('./src/components/GaleriaMiniatura.vue')['default']
-    HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     Modelo3D: typeof import('./src/components/Modelo3D.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

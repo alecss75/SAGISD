@@ -81,37 +81,37 @@ export default {
         {
           icon: 'mdi-share',
           label: 'Regla',
-          action: () => alert(JSON.stringify(this.currentMetadata, null, 2)),
+          action: () => console.log(JSON.stringify(this.currentMetadata, null, 2)),
         },
         {
           icon: 'mdi-share',
           label: 'Brillo',
-          action: () => alert(JSON.stringify(this.currentMetadata, null, 2)),
+          action: () => console.log(JSON.stringify(this.currentMetadata, null, 2)),
         },
         {
           icon: 'mdi-share',
           label: 'Contraste',
-          action: () => alert(JSON.stringify(this.currentMetadata, null, 2)),
+          action: () => console.log(JSON.stringify(this.currentMetadata, null, 2)),
         },
         {
           icon: 'mdi-share',
           label: 'Notas',
-          action: () => alert(JSON.stringify(this.currentMetadata, null, 2)),
+          action: () => console.log(JSON.stringify(this.currentMetadata, null, 2)),
         },
         {
           icon: 'mdi-share',
           label: 'Bordes',
-          action: () => alert(JSON.stringify(this.currentMetadata, null, 2)),
+          action: () => console.log(JSON.stringify(this.currentMetadata, null, 2)),
         },
         {
           icon: 'mdi-share',
           label: 'Mover',
-          action: () => alert(JSON.stringify(this.currentMetadata, null, 2)),
+          action: () => console.log(JSON.stringify(this.currentMetadata, null, 2)),
         },
         {
           icon: 'mdi-share',
           label: 'Exportar',
-          action: () => alert(JSON.stringify(this.currentMetadata, null, 2)),
+          action: () => console.log(JSON.stringify(this.currentMetadata, null, 2)),
         },
       ],
     };

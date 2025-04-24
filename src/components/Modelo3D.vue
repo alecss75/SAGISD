@@ -14,7 +14,7 @@ export default {
   props: {
     metadata: {
       type: Object,
-      default: () => ({}), // 1) Por defecto un objeto vacío
+      default: () => ({}), // Por defecto un objeto vacío
     },
   },
 
@@ -22,7 +22,7 @@ export default {
     this.initScene();
     this.loadModel();
 
-    // 3) Vinculamos animate al contexto antes de usarlo
+    // Vinculamos animate al contexto antes de usarlo
     this.animate = this.animate.bind(this);
     this.animate();
   },
@@ -91,7 +91,7 @@ export default {
     updateOrientation(md) {
       if (!this.model) return;
 
-      // 2) Protegemos el acceso a campos que tal vez no existan
+      //  Protegemos el acceso a campos que tal vez no existan
       if (md.imagePositionPatient && Array.isArray(md.imagePositionPatient)) {
         const angle = (md.imagePositionPatient[2] / 100) * Math.PI;
         this.model.rotation.set(angle, 0, 0);

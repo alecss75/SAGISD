@@ -71,7 +71,7 @@ export default defineConfig({
   },
   server: {
     port: 3000,
-    cors: true, // <— habilita Access-Control-Allow-Origin: *
+    cors: true, 
     headers: {
       'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
       'Access-Control-Allow-Credentials': 'true',

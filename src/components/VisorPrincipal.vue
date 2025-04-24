@@ -1,4 +1,3 @@
-<!-- src/components/VisorPrincipal.vue -->
 <template>
   <v-sheet class="pa-2" height="600">
     <div ref="viewer" class="viewer-container"></div>
@@ -9,20 +8,25 @@
 export default {
   name: 'VisorPrincipal',
   props: {
-    imageId: { type: String, required: true },
+    imageId: { type: String, required: true, default: '' },
   },
   watch: {
     imageId: {
       immediate: true,
       handler(id) {
-        if (!id) return;
+        // Verificamos que imageId no sea null o vacío
+        if (!id) {
+          console.error('No se proporcionó un imageId válido');
+          return;
+        }
+
         const cs = this.$cornerstone;
         const cst = this.$cornerstoneTools;
         const el = this.$refs.viewer;
 
-        // // Habilita el elemento
+        // Habilitar el elemento de visualización
         cs.enable(el);
-        
+
         // Registra y activa herramientas básicas
         cst.addTool(cst.PanTool);
         cst.addTool(cst.ZoomTool);
@@ -31,24 +35,14 @@ export default {
         cst.setToolActive('Zoom', { mouseButtonMask: 2 }); // botón derecho
         cst.setToolActive('Wwwc', { mouseButtonMask: 4 }); // rueda del ratón
 
-        // Carga y despliega la imagen
+        // Cargar y desplegar la imagen usando el imageId
         cs.loadImage(id)
-          .then(image => cs.displayImage(el, image))
-          .catch(err => console.error('Cornerstone loadImage error:', err));
-      },
-    },
-  },
-  watch: {
-    imageId: {
-      immediate: true,
-      handler(id) {
-        if (!id) return;
-        const el = this.$refs.viewer;
-        this.$cornerstone.enable(el);
-        this.$cornerstone
-          .loadImage(id) // id ya tiene ?t=…
-          .then(img => this.$cornerstone.displayImage(el, img))
-          .catch(console.error);
+          .then(image => {
+            cs.displayImage(el, image);
+          })
+          .catch(err => {
+            console.error('Error al cargar la imagen con Cornerstone:', err);
+          });
       },
     },
   },

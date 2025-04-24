@@ -1,8 +1,6 @@
 <template>
   <div>
-    <!-- Encabezado -->
     <AppBar />
-
     <v-card outlined height="90vh">
       <v-row>
         <!-- Visor 2D -->
@@ -15,7 +13,7 @@
           <GaleriaMiniatura :instanceIds="instanceIds" @select="onSelect" />
         </v-col>
 
-        <!-- Barra de herramientas dinámica -->
+        <!-- Barra de herramientas -->
         <v-col md="3">
           <v-card class="pa-2">
             <v-icon>mdi-trash</v-icon>
@@ -36,19 +34,39 @@
                 <v-list-item-title> {{ tool.label }}</v-list-item-title>
               </v-list-item>
             </v-list>
+
+            <!-- Botón para generar video -->
+            <v-btn @click="generarVideo" color="primary" class="mt-3">Generar Video</v-btn>
           </v-card>
         </v-col>
       </v-row>
     </v-card>
+
+    <!-- Modal para mostrar el video generado -->
+    <v-dialog v-model="videoDialog" max-width="90%">
+      <v-card>
+        <v-card-title class="text-h6">Video Generado</v-card-title>
+        <v-card-text>
+          <video ref="videoPlayer" controls width="100%">
+            <source :src="videoUrl" type="video/mp4" />
+            Tu navegador no soporta este formato de video.
+          </video>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn @click="videoDialog = false" color="primary">Cerrar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
 <script>
+import { ref } from 'vue';
 import AppBar from '@/components/AppBar.vue';
 import VisorPrincipal from '@/components/VisorPrincipal.vue';
 import GaleriaMiniatura from '@/components/GaleriaMiniatura.vue';
-
-import { getInstanceIds, getImageId, getMetadata } from '@/services/dicomService';
+import { getInstanceIds, getImageId } from '@/services/dicomService';
+import { convertirDicomAVideo } from '@/services/videoService'; // Importa el servicio de video
 
 export default {
   name: 'DicomViewer',
@@ -59,48 +77,47 @@ export default {
   },
   data() {
     return {
-      instanceIds: [],
+      instanceIds: getInstanceIds(),
       currentImageId: null,
-      currentMetadata: {},
-
-      // Lista de herramientas personalizable
       tools: [
         {
           icon: 'mdi-download',
           label: 'Descargar actual',
-          action: () => console.log('Zoom activado'),
+          action: () => console.log('Descargando...'),
         },
         {
-          icon: 'mdi-download-multiple',
-          label: 'Exportar todos',
-          action: () => console.log('Herramienta de medición activada'),
+          icon: 'mdi-download',
+          label: 'Exportar video',
+          action: () => {
+            generarVideo();  // Esta acción se mantiene, pero el método es ahora actualizado
+          },
         },
-        {
-          icon: 'mdi-share',
-          label: 'Compartir',
-          action: () => alert(JSON.stringify(this.currentMetadata, null, 2)),
-        },
+        // Otras herramientas
       ],
+      videoDialog: false,
+      videoUrl: '',  // Almacenará la URL del video generado
     };
   },
-  mounted() {
-    this.instanceIds = getInstanceIds();
-  },
   methods: {
-    async onSelect(name) {
-      this.currentImageId = getImageId(name);
-      this.currentMetadata = getMetadata(name);
+    onSelect(id) {
+      this.currentImageId = getImageId(id);
+    },
+
+    // Método para generar el video
+    async generarVideo() {
+      try {
+        const rutasDicom = this.instanceIds.map(id => getImageId(id)); // Rutas de las imágenes DICOM
+        this.videoUrl = await convertirDicomAVideo(rutasDicom); // Llamada al servicio para generar el video
+        console.log('Video generado:', this.videoUrl);
+        this.videoDialog = true; // Mostrar el diálogo con el video
+      } catch (error) {
+        console.error('Error generando el video:', error);
+      }
     },
   },
 };
 </script>
 
 <style scoped>
-.hoverable {
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-.hoverable:hover {
-  background-color: #f0f0f0;
-}
+/* Estilos para el contenedor del video y la galería */
 </style>

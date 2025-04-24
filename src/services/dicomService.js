@@ -4,7 +4,7 @@ console.log('✅ Iniciando dicomService.js');
 
 // 1) Importar todos los DICOM (.dcm) desde src/assets/dicoms/DICOMOBJ
 const dicomModules = import.meta.glob('../assets/dicoms/DICOMOBJ/*.dcm', {
-  as: 'url',
+  query: 'url',
   eager: true,
 });
 
@@ -41,7 +41,7 @@ export function getImageId(name) {
 // Importa un JSON con metadata pre-generada
 import metadataMapping from '../assets/metadata.json';
 
-console.log('📑 Metadata JSON cargado:', metadataMapping);
+// console.log('📑 Metadata JSON cargado:', metadataMapping);
 
 // Devuelve los metadatos del archivo si existen
 export function getMetadata(name) {

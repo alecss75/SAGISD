@@ -1,48 +1,60 @@
 // src/main.js
-import { createApp } from 'vue';
-import App from './App.vue';
-import router from './router';
+import { createApp } from 'vue'
+import App from './App.vue'
+import router from './router'
 
-// Vuetify
-import 'vuetify/styles';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
+// Vuetify stuff…
+import 'vuetify/styles'
+import { createVuetify } from 'vuetify'
+import * as components from 'vuetify/components'
+import * as directives from 'vuetify/directives'
 
-const vuetify = createVuetify({
-  components,
-  directives,
-});
+// Cornerstone + WADO + Parser + Hammer
+import cornerstone from 'cornerstone-core'
+import * as cornerstoneTools from 'cornerstone-tools'
+import cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader'
+import dicomParser from 'dicom-parser'
+import Hammer from 'hammerjs'
 
-// Cornerstone config
-import cornerstone from 'cornerstone-core';
-import * as cornerstoneTools from 'cornerstone-tools';
-import * as cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader';
-import dicomParser from 'dicom-parser';
+// wire up the externals
+cornerstoneWADOImageLoader.external.cornerstone = cornerstone
+cornerstoneWADOImageLoader.external.dicomParser  = dicomParser
+cornerstoneTools.external.cornerstone           = cornerstone
+cornerstoneTools.external.Hammer                = Hammer
 
-cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
-cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
-cornerstoneTools.external.cornerstone = cornerstone;
-
-cornerstoneWADOImageLoader.webWorkerManager.initialize({
-  maxWebWorkers: navigator.hardwareConcurrency || 1,
-  startWebWorkersOnDemand: true,
-  taskConfiguration: {
-    decodeTask: {
-      initializeCodecsOnStartup: false,
-    },
+cornerstoneWADOImageLoader.configure({
+  useWebWorkers: true,
+  decodeConfig: {
+    convertFloatPixelDataToInt: false,
   },
 });
 
-cornerstoneTools.init();
+var config = {
+  maxWebWorkers: navigator.hardwareConcurrency || 1,
+  startWebWorkersOnDemand: false,
+  taskConfiguration: {
+    decodeTask: {
+      initializeCodecsOnStartup: true,
+      strict: false,
+    },
+  },
+};
 
-const app = createApp(App);
+cornerstoneWADOImageLoader.webWorkerManager.initialize(config);
 
-// Exponer como propiedades globales
-app.config.globalProperties.$cornerstone = cornerstone;
-app.config.globalProperties.$cornerstoneTools = cornerstoneTools;
-app.config.globalProperties.$cornerstoneWADO = cornerstoneWADOImageLoader;
+cornerstoneTools.init()
 
-app.use(router);
-app.use(vuetify);
-app.mount('#app');
+import { createPinia } from 'pinia'
+const pinia = createPinia()
+
+const app = createApp(App)
+
+app.config.globalProperties.$cornerstone      = cornerstone
+app.config.globalProperties.$cornerstoneTools = cornerstoneTools
+app.config.globalProperties.$cornerstoneWADO  = cornerstoneWADOImageLoader
+
+app
+  .use(router)
+  .use(pinia)
+  .use(createVuetify({ components, directives }))
+  .mount('#app')

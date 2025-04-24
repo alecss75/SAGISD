@@ -14,71 +14,77 @@ import { fileURLToPath, URL } from 'node:url';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    plugins: [
-        VueRouter(),
-        Layouts(),
-        Vue({
-            template: { transformAssetUrls },
-        }),
-        // https://github.com/vuetifyjs/vuetify-loader/tree/master/packages/vite-plugin#readme
-        Vuetify({
-            autoImport: true,
-            styles: {
-                configFile: 'src/styles/settings.scss',
-            },
-        }),
-        Components(),
-        Fonts({
-            google: {
-                families: [
-                    {
-                        name: 'Roboto',
-                        styles: 'wght@100;300;400;500;700;900',
-                    },
-                ],
-            },
-        }),
-        AutoImport({
-            imports: [
-                'vue',
-                VueRouterAutoImports,
-                {
-                    pinia: ['defineStore', 'storeToRefs'],
-                },
-            ],
-            eslintrc: {
-                enabled: true,
-            },
-            vueTemplate: true,
-        }),
-    ],
-    optimizeDeps: {
-        exclude: [
-            'vuetify',
-            'vue-router',
-            'unplugin-vue-router/runtime',
-            'unplugin-vue-router/data-loaders',
-            'unplugin-vue-router/data-loaders/basic',
+  plugins: [
+    VueRouter(),
+    Layouts(),
+    Vue({
+      template: { transformAssetUrls },
+    }),
+    // https://github.com/vuetifyjs/vuetify-loader/tree/master/packages/vite-plugin#readme
+    Vuetify({
+      autoImport: true,
+      styles: {
+        configFile: 'src/styles/settings.scss',
+      },
+    }),
+    Components(),
+    Fonts({
+      google: {
+        families: [
+          {
+            name: 'Roboto',
+            styles: 'wght@100;300;400;500;700;900',
+          },
         ],
-    },
-    define: { 'process.env': {} },
-    resolve: {
-        alias: {
-            '@': fileURLToPath(new URL('./src', import.meta.url)),
+      },
+    }),
+    AutoImport({
+      imports: [
+        'vue',
+        VueRouterAutoImports,
+        {
+          pinia: ['defineStore', 'storeToRefs'],
         },
-        extensions: ['.js', '.json', '.jsx', '.mjs', '.ts', '.tsx', '.vue'],
+      ],
+      eslintrc: {
+        enabled: true,
+      },
+      vueTemplate: true,
+    }),
+  ],
+  optimizeDeps: {
+    exclude: [
+      'vuetify',
+      'vue-router',
+      'unplugin-vue-router/runtime',
+      'unplugin-vue-router/data-loaders',
+      'unplugin-vue-router/data-loaders/basic',
+    ],
+  },
+  define: { 'process.env': {} },
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
-    server: {
-        port: 3000,
+    extensions: ['.js', '.json', '.jsx', '.mjs', '.ts', '.tsx', '.vue'],
+  },
+  server: {
+    port: 3000,
+    cors: true, // <— habilita Access-Control-Allow-Origin: *
+    headers: {
+      'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
+      'Access-Control-Allow-Credentials': 'true',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     },
-    css: {
-        preprocessorOptions: {
-            sass: {
-                api: 'modern-compiler',
-            },
-            scss: {
-                api: 'modern-compiler',
-            },
-        },
+  },
+  css: {
+    preprocessorOptions: {
+      sass: {
+        api: 'modern-compiler',
+      },
+      scss: {
+        api: 'modern-compiler',
+      },
     },
+  },
 });

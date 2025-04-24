@@ -1,10 +1,11 @@
 <template>
   <div>
-    <AppBar />
+    <AppBar /> {{ currentImageId }}
 
     <v-container fluid>
+      
       <v-card outlined height="90vh" class="pa-2 d-flex flex-column">
-        <v-row no-gutters class="fill-height">
+        <v-row no-gutters class="fill-height"> 
           <!-- Visor Principal -->
           <v-col md="6" class="pa-2 fill-height d-flex flex-column">
             <VisorPrincipal :imageId="currentImageId" class="fill-height" />
@@ -52,10 +53,7 @@ import AppBar from '@/components/AppBar.vue';
 import VisorPrincipal from '@/components/VisorPrincipal.vue';
 import GaleriaMiniatura from '@/components/GaleriaMiniatura.vue';
 import Modelo3D from '@/components/Modelo3D.vue';
-import { useDicomStore } from '@/stores/useDicomStore';
-
-// Tu servicio dinámico que descubre los DICOM en assets y construye imageIds
-import { getInstanceIds, getImageId, getMetadata } from '@/services/dicomService';
+import { useDicomStore } from '@/stores/dicomStore';
 
 export default {
   name: 'DicomViewer',
@@ -63,16 +61,12 @@ export default {
     AppBar,
     VisorPrincipal,
     GaleriaMiniatura,
-    // Modelo3D,
+    Modelo3D,
   },
   data() {
     const dicomStore = useDicomStore();
     return {
       dicomStore,
-      // instanceIds: [], // ["00000000","0000000A",...]
-      // currentImageId: null, // "wadouri://…"
-      // currentMetadata: {},
-
       tools: [
         {
           icon: 'mdi-download',
@@ -123,29 +117,37 @@ export default {
     };
   },
   async mounted() {
-    await this.dicomStore.loadDicomsFromAssets(); // carga automática
-    // this.instanceIds = getInstanceIds();
-    // console.log(this.instanceIds) // sí funcionan
-  },  
+    await this.dicomStore.loadDicomsFromAssets(); // carga automática de los archivos DICOM
+    this.dicomStore.loadDicomsFromAssets().then(() => {
+      // Verificamos si hay DICOMs cargados, y seleccionamos el primero
+      if (this.dicomStore.dicomFiles.length > 0) {
+        console.log("entreéeee")
+        const firstFileId = this.dicomStore.dicomFiles[0].id;
+        this.dicomStore.select(firstFileId); // Seleccionamos el primer archivo DICOM
+      }
+    });
+  },
   methods: {
-    async onSelect(id) {
-      this.dicomStore.select(id);
-      // Si quieres cargar metadatos dinámicamente aquí puedes hacerlo
-      const metadata = await getMetadata(id);
-      this.dicomStore.setMetadata(id, metadata);
+    onSelect(id) {
+      console.log(id);
+      this.dicomStore.select(id); // Selecciona el archivo DICOM en el store
+      const metadata = this.dicomStore.getMetadata(id); // Obtiene los metadatos desde el store
+      console.log('metadata', metadata);
+      this.dicomStore.setMetadata(id, metadata); // Almacena los metadatos en el store
     },
   },
   computed: {
     instanceIds() {
-      return this.dicomStore.allIds;
+      return this.dicomStore.allIds; // Accede a los IDs desde el store
     },
     currentImageId() {
       const selected = this.dicomStore.selectedFile;
-      return selected ? `wadouri:${selected.url}` : null;
+      // Verifica que selected.url sea un string antes de usarlo
+      return selected && typeof selected.url === 'string' ? `wadouri:${selected.url}` : null;
     },
-    currentMetadata() { 
+    currentMetadata() {
       const selected = this.dicomStore.selectedFile;
-      return selected?.metadata || {};
+      return selected?.metadata || {}; // Accede a los metadatos del archivo seleccionado
     },
   },
 };

@@ -60,6 +60,7 @@ export default defineConfig({
       'unplugin-vue-router/data-loaders',
       'unplugin-vue-router/data-loaders/basic',
     ],
+    include: ['@ffmpeg/ffmpeg'] 
   },
   define: { 'process.env': {} },
   resolve: {

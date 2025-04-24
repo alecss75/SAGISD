@@ -23,31 +23,33 @@ export default {
       const dicomStore = useDicomStore();
 
       try {
-        const imageData = await dicomStore.processDicom(this.imageId);
-        console.log("IMAGEDATA",imageData)
+        // Llamar a processDicom para cargar la imagen
+        const image = await dicomStore.processDicom(this.imageId);
+        console.log("Image loaded:", image);
 
-        // Verificamos si imageData es válido antes de intentar dibujarlo
-        if (imageData && imageData.width && imageData.height) {
-          this.drawImage(imageData); // Llamamos a la función para dibujar la imagen en el canvas
+        // Si es válido, dibujar la imagen
+        console.log("",image)
+        if (image && image.width && image.height) {
+          this.drawImage(image);  // Llamamos a la función para dibujar la imagen en el canvas
         } else {
           throw new Error('Imagen no válida o error al cargarla');
         }
       } catch (err) {
-        // console.error('Error al cargar la imagen DICOM:', err);
+        console.error('Error al cargar la imagen DICOM:', err);
       }
     },
 
     // Función para dibujar la imagen procesada en el canvas
-    drawImage(imageData) {
+    drawImage(image) {
       const canvas = this.$refs.canvas;
       const ctx = canvas.getContext('2d');
 
       // Ajustamos el tamaño del canvas según la imagen procesada
-      canvas.width = imageData.width;
-      canvas.height = imageData.height;
+      canvas.width = image.width;
+      canvas.height = image.height;
 
       // Dibujamos la imagen en el canvas
-      ctx.drawImage(imageData, 0, 0);
+      ctx.drawImage(image, 0, 0);
     },
 
     // Método para manejar el clic en el thumbnail

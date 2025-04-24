@@ -17,10 +17,10 @@ import dicomParser from 'dicom-parser'
 import Hammer from 'hammerjs'
 
 // wire up the externals
-cornerstoneWADOImageLoader.external.cornerstone = cornerstone
-cornerstoneWADOImageLoader.external.dicomParser  = dicomParser
-cornerstoneTools.external.cornerstone           = cornerstone
-cornerstoneTools.external.Hammer                = Hammer
+cornerstoneWADOImageLoader.external.cornerstone   = cornerstone
+cornerstoneWADOImageLoader.external.dicomParser   = dicomParser
+cornerstoneTools.external.cornerstone             = cornerstone
+cornerstoneTools.external.Hammer                  = Hammer
 
 cornerstoneWADOImageLoader.configure({
   useWebWorkers: true,

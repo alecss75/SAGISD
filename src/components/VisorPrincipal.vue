@@ -14,36 +14,91 @@ export default {
     imageId: {
       immediate: true,
       handler(id) {
-        // Verificamos que imageId no sea null o vacío
         if (!id) {
           console.error('No se proporcionó un imageId válido');
           return;
         }
 
         const cs = this.$cornerstone;
-        const cst = this.$cornerstoneTools;
         const el = this.$refs.viewer;
 
-        // Habilitar el elemento de visualización
+        // Habilitar el visor
         cs.enable(el);
 
-        // Registra y activa herramientas básicas
-        cst.addTool(cst.PanTool);
-        cst.addTool(cst.ZoomTool);
-        cst.addTool(cst.WwwcTool);
-        cst.setToolActive('Pan', { mouseButtonMask: 1 }); // botón izquierdo
-        cst.setToolActive('Zoom', { mouseButtonMask: 2 }); // botón derecho
-        cst.setToolActive('Wwwc', { mouseButtonMask: 4 }); // rueda del ratón
+        // Cargar la imagen y mostrarla en el visor
+        cs.loadImage(id).then(function(image) {
+          cs.displayImage(el, image);
+        });
 
-        // Cargar y desplegar la imagen usando el imageId
-        cs.loadImage(id)
-          .then(image => {
-            cs.displayImage(el, image);
-          })
-          .catch(err => {
-            console.error('Error al cargar la imagen con Cornerstone:', err);
-          });
+        // Habilitar eventos para mover (pan) y hacer zoom
+        this.addPanAndZoom(el);
       },
+    },
+  },
+  methods: {
+    addPanAndZoom(el) {
+      // Agregar eventos para hacer zoom
+      const zoomInButton = document.getElementById('zoomIn');
+      const zoomOutButton = document.getElementById('zoomOut');
+      const resetButton = document.getElementById('reset');
+
+      zoomInButton.addEventListener('click', function() {
+        const viewport = this.$cornerstone.getViewport(el);
+        viewport.scale += 0.25;
+        this.$cornerstone.setViewport(el, viewport);
+      });
+
+      zoomOutButton.addEventListener('click', function() {
+        const viewport = this.$cornerstone.getViewport(el);
+        viewport.scale -= 0.25;
+        this.$cornerstone.setViewport(el, viewport);
+      });
+
+      resetButton.addEventListener('click', function() {
+        this.$cornerstone.reset(el);
+      });
+
+      // Agregar evento de mouse para mover (pan)
+      el.addEventListener('mousedown', (e) => {
+        let lastX = e.pageX;
+        let lastY = e.pageY;
+
+        function mouseMoveHandler(e) {
+          const deltaX = e.pageX - lastX;
+          const deltaY = e.pageY - lastY;
+          lastX = e.pageX;
+          lastY = e.pageY;
+
+          const viewport = this.$cornerstone.getViewport(el);
+          viewport.translation.x += deltaX / viewport.scale;
+          viewport.translation.y += deltaY / viewport.scale;
+          this.$cornerstone.setViewport(el, viewport);
+        }
+
+        function mouseUpHandler() {
+          document.removeEventListener('mousemove', mouseMoveHandler);
+          document.removeEventListener('mouseup', mouseUpHandler);
+        }
+
+        document.addEventListener('mousemove', mouseMoveHandler);
+        document.addEventListener('mouseup', mouseUpHandler);
+      });
+
+      // Agregar eventos para hacer zoom con la rueda del ratón
+      const mouseWheelEvents = ['mousewheel', 'DOMMouseScroll'];
+      mouseWheelEvents.forEach(function(eventType) {
+        el.addEventListener(eventType, function(e) {
+          let viewport = this.$cornerstone.getViewport(el);
+          if (e.wheelDelta < 0 || e.detail > 0) {
+            viewport.scale -= 0.25;
+          } else {
+            viewport.scale += 0.25;
+          }
+
+          this.$cornerstone.setViewport(el, viewport);
+          return false; // Prevenir que la página haga scroll
+        });
+      });
     },
   },
 };

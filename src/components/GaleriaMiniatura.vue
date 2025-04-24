@@ -1,5 +1,5 @@
 <template>
-  <v-sheet class="pa-2" elevation="1" style="height: 100%; overflow-y: auto">
+  <v-sheet class="pa-2" elevation="1" style="height: 100%; overflow-y: auto" color="#3d3b3b">
     <div class="grid-container">
       <!-- Iteramos sobre instanceIds por cada DicomThumbnail  -->
       <div v-for="item in instanceIds" :key="item" class="thumbnail-wrapper">

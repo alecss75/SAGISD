@@ -4,7 +4,7 @@
     <v-card outlined height="90vh">
       <v-row>
         <!-- Visor 2D -->
-        <v-col md="5">
+        <v-col md="6">
           <VisorPrincipal :imageId="currentImageId" />
         </v-col>
 
@@ -14,29 +14,14 @@
         </v-col>
 
         <!-- Barra de herramientas -->
-        <v-col md="3">
+        <v-col md="2">
           <v-card class="pa-2">
-            <v-icon>mdi-trash</v-icon>
-            <v-list density="compact">
-              <v-list-subheader>Herramientas</v-list-subheader>
-
-              <v-list-item
-                v-for="(tool, i) in tools"
-                :key="i"
-                :value="tool"
-                color="primary"
-                @click="tool.action"
-              >
-                <template v-slot:prepend>
-                  <v-icon :icon="tool.icon"></v-icon>
-                </template>
-
-                <v-list-item-title> {{ tool.label }}</v-list-item-title>
-              </v-list-item>
-            </v-list>
-
             <!-- Botón para generar video -->
-            <v-btn @click="generarVideo" color="primary" class="mt-3">Generar Video</v-btn>
+            <v-btn @click="generarVideo" color="primary" class="mt-3">Descargar</v-btn>
+            <!-- Botón para exportar -->
+            <v-btn @click="generarVideo" color="primary" class="mt-3">Exportar </v-btn>
+            <!-- Botón para compartir  -->
+            <v-btn @click="generarVideo" color="primary" class="mt-3">Compartir</v-btn>
           </v-card>
         </v-col>
       </v-row>

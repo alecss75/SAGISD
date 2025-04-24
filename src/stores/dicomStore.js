@@ -35,21 +35,20 @@ export const useDicomStore = defineStore('dicomStorage', {
     async loadDicomsFromAssets() {
       this.isLoading = true;
       try {
-        const modules = import.meta.glob('@/public/dicoms/DICOMOBJ/*', {
-          query: 'url',
-          eager: true,
-        });
+        const response = await fetch('/dicoms/dicoms.json');
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-        this.dicomFiles = Object.entries(modules).map(([path, url]) => {
-          const id = path
-            .split('/')
-            .pop()
-            .replace(/\.[^/.]+$/, '');
+        const data = await response.json();
+
+        this.dicomFiles = data.files.map(file => {
+          const id = file.replace(/\.[^/.]+$/, ''); // elimina la extensión
+          const url = `/dicoms/DICOMOBJ/${file}`; // ruta completa para wadouri
           return { id, url };
         });
 
         this.error = null;
       } catch (err) {
+        console.error('❌ Error al cargar los DICOMs:', err);
         this.error = 'Error al cargar los DICOMs: ' + err.message;
         this.dicomFiles = [];
       } finally {
@@ -76,55 +75,51 @@ export const useDicomStore = defineStore('dicomStorage', {
       const wado = this.$cornerstoneWADO;
 
       try {
-        const rawUrl = imageId.replace(/^wadouri:/, ''); // Eliminamos el prefijo 'wadouri:'
-        console.log('URL sin wadouri:', rawUrl); // Verificamos la URL sin el prefijo
-
+        // Elimina el prefijo 'wadouri:' si está presente
+        const rawUrl = imageId.replace(/^wadouri:/, '');
         const url = new URL(rawUrl, window.location.origin); // Generamos la URL completa
-        url.searchParams.set('_', Date.now()); // Añadimos el parámetro para evitar caché
-        const fetchUrl = url.href;
+        url.searchParams.set('_', Date.now()); // Agregar un parámetro para evitar el caché
 
-        console.log('URL final con parámetro de timestamp:', fetchUrl); // Verificamos la URL final
+        const fetchUrl = url.href; // La URL final
 
-        // 1) Obtener ArrayBuffer desde la URL
+        console.log('URL de la imagen DICOM a cargar:', fetchUrl); // Verifica que la URL esté bien formada
+
+        // Descargar el archivo DICOM como ArrayBuffer
         const res = await fetch(fetchUrl);
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}: No se pudo cargar el archivo DICOM`);
-        }
+        if (!res.ok) throw new Error(`HTTP ${res.status}: No se pudo cargar el archivo DICOM`);
 
         let buffer = await res.arrayBuffer();
-        console.log('Buffer cargado correctamente:', buffer);
+        console.log('Buffer DICOM cargado');
 
-        // 2) Verificar si tiene encabezado "DICM", si no, aplicar makePart10() con dcmjs
+        // Verificar si el encabezado DICM está presente, y si no, aplicar makePart10
         const magic = String.fromCharCode(...new Uint8Array(buffer, 128, 4));
-        console.log('Encabezado DICM:', magic);
+        console.log('Encabezado DICM:', magic); // Verifica si es 'DICM'
 
         if (magic !== 'DICM') {
           console.log('No tiene DICM, aplicando makePart10');
-          buffer = await this.makePart10(buffer);
+          buffer = await this.makePart10(buffer); // Si no tiene DICM, lo procesamos
         }
 
-        // 3) Crear una imagen usando cornerstone y devolverla
+        // Crear un Blob con el buffer descargado
         const blob = new Blob([buffer], { type: 'application/dicom' });
-        const fileId = wado.wadouri.fileManager.add(blob);
-        const image = await cs.loadImage(fileId);
+        const blobUrl = URL.createObjectURL(blob); // Crear la URL para el Blob
+        const fullImageId = `wadouri:${blobUrl}`; // Prefijo 'wadouri:' para Cornerstone
 
-        // Verificamos si la imagen fue cargada correctamente
+        console.log('Cargando imagen con ID:', fullImageId); // Verifica el imageId
+
+        // Cargar la imagen con Cornerstone
+        const image = await cs.loadImage(fullImageId);
+
+        // Verificar si la imagen tiene dimensiones válidas
         if (!image || !image.width || !image.height) {
-          console.error('La imagen no tiene propiedades de ancho y alto válidas');
-          throw new Error('La imagen DICOM no tiene las propiedades necesarias');
+          throw new Error('La imagen DICOM no tiene dimensiones válidas');
         }
 
-        console.log('Imagen cargada:', image);
-
-        // Extraer y almacenar los metadatos del DICOM
-        const metadata = dicomParser.parseDicom(new Uint8Array(buffer)); // Usamos dicom-parser para obtener metadatos
-        this.setMetadata(fileId, metadata); // Guardamos los metadatos en el archivo
-
-        return image; // Regresa la imagen cargada que puede ser dibujada en el canvas
+        return image; // Regresa la imagen cargada correctamente
       } catch (err) {
+        console.error('Error al procesar DICOM:', err.message);
         this.error = `Error al procesar DICOM: ${err.message}`;
-        console.error(this.error);
-        return null; // Retornamos null si ocurre un error
+        return null; // Retornar null si ocurre un error
       }
     },
 
